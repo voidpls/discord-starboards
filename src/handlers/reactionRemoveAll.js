@@ -16,7 +16,7 @@ module.exports = async (manager, message) => {
 		const starMessage = fetchedMessages.find(m => m.embeds[0] && m.embeds[0].footer && m.embeds[0].footer.text.endsWith(message.id) && m.author.id === manager.client.user.id);
 		if (starMessage) {
 			const foundStar = starMessage.embeds[0];
-			const image = foundStar.image && foundStar.image.url || '';
+			// const image = foundStar.image && foundStar.image.url || '';
 			const starEmbed = new MessageEmbed()
 				.setColor(foundStar.color)
 				.setDescription(foundStar.description || '')
@@ -24,15 +24,23 @@ module.exports = async (manager, message) => {
 				.setTimestamp()
 				.setFooter({ text: `${data.options.emoji} 0 | ${message.id}` });
 
-			if (message.attachments.size > 0) {
-				const ext = [...message.attachments.values()][0].url
-					.split(/[#?]/)[0].split('.').pop().trim();
-				starEmbed.setImage(`image.${ext}`);
-			}
-			else starEmbed.setImage(image);
+			// if (message.attachments.size > 0) {
+			// 	const ext = [...message.attachments.values()][0].url
+			// 		.split(/[#?]/)[0].split('.').pop().trim();
+			// 	starEmbed.setImage(`image.${ext}`);
+			// }
+			// else starEmbed.setImage(image);
 
 			const starMsg = await starChannel.messages.fetch(starMessage.id);
-			await starMsg.edit({ embeds: [starEmbed] });
+			if (starMessage.attachments.size > 0) {
+				// const filename = starMessage.attachments.first().name;
+				// eslint-disable-next-line no-empty-function
+				await starMsg.edit({ embeds: [starEmbed], files: [...starMessage.attachments.values()] }).catch(() => {});
+			}
+			// eslint-disable-next-line no-empty-function
+			else await starMsg.edit({ embeds: [starEmbed] }).catch(() => {});
+
+			// await starMsg.edit({ embeds: [starEmbed] });
 
 			setTimeout(() => {
 				starMsg.delete();

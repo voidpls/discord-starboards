@@ -23,25 +23,34 @@ module.exports = async (manager, emoji, message, user) => {
 		const regex = new RegExp(`^(${data.options.emoji}|" ")?\\s?([0-9]{1,3})\\s\\|\\s([0-9]{17,20})`);
 		const stars = regex.exec(starMessage.embeds[0].footer.text);
 		const foundStar = starMessage.embeds[0];
-		const image = foundStar.image && foundStar.image.url || '';
+		// const image = foundStar.image && foundStar.image.url || '';
 		const footerUrl = emoji.length > 5 ? `https://cdn.discordapp.com/emojis/${emoji}` : null;
-		const starEmbed = new MessageEmbed()
+		// const starEmbed = new MessageEmbed()
+		const starEmbed = starMessage.embeds[0]
 			.setColor(getColor(data.options.color, parseInt(stars[2]) - 1, data.options.threshold) || foundStar.color)
 			.setDescription(foundStar.description || '')
 			.setAuthor({ name: message.author.tag, iconURL: message.author.displayAvatarURL() })
-			.setTimestamp()
+			// .setTimestamp()
 			.setFooter({ text: `${emoji.length > 5 ? '' : data.options.emoji} ${parseInt(stars[2]) - 1} | ${message.id}`, iconURL: footerUrl });
 
-		if (message.attachments.size > 0) {
-			const ext = [...message.attachments.values()][0].url
-				.split(/[#?]/)[0].split('.').pop().trim();
-			starEmbed.setImage(`image.${ext}`);
-		}
-		else starEmbed.setImage(image);
+		// if (message.attachments.size > 0) {
+		// 	const ext = [...message.attachments.values()][0].url
+		// 		.split(/[#?]/)[0].split('.').pop().trim();
+		// 	starEmbed.setImage(`image.${ext}`);
+		// }
+		// else starEmbed.setImage(image);
 
 		const starMsg = await starChannel.messages.fetch(starMessage.id);
 		// eslint-disable-next-line no-empty-function
-		await starMsg.edit({ embeds: [starEmbed] }).catch(() => {});
+		if (starMessage.attachments.size > 0) {
+			// const filename = starMessage.attachments.first().name;
+			// eslint-disable-next-line no-empty-function
+			await starMsg.edit({ embeds: [starEmbed], files: [...starMessage.attachments.values()] }).catch(() => {});
+		}
+		// eslint-disable-next-line no-empty-function
+		else await starMsg.edit({ embeds: [starEmbed] }).catch(() => {});
+
+		// await starMsg.edit({ embeds: [starEmbed] }).catch(() => {});
 		if(parseInt(stars[2]) - 1 == 0 || reaction && reaction.count < data.options.threshold) {
 			setTimeout(() => {
 				// eslint-disable-next-line no-empty-function
