@@ -51,7 +51,7 @@ module.exports = async (manager, emoji, message, user) => {
 			.setImage(image);
 		const starMsg = await starChannel.messages.fetch(starMessage.id);
 		// eslint-disable-next-line no-empty-function
-		await starMsg.edit({ embeds: [starEmbed] }).catch(() => {});
+		await starMsg.edit({ embeds: [starEmbed], files: [] }).catch(() => {});
 		manager.emit('starboardReactionAdd', emoji, message, user);
 	}
 

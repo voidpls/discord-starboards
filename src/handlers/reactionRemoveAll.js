@@ -25,7 +25,7 @@ module.exports = async (manager, message) => {
 				.setFooter({ text: `${data.options.emoji} 0 | ${message.id}` })
 				.setImage(image);
 			const starMsg = await starChannel.messages.fetch(starMessage.id);
-			await starMsg.edit({ embeds: [starEmbed] });
+			await starMsg.edit({ embeds: [starEmbed], files: [] });
 
 			setTimeout(() => {
 				starMsg.delete();

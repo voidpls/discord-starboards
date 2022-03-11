@@ -34,7 +34,7 @@ module.exports = async (manager, emoji, message, user) => {
 			.setImage(image);
 		const starMsg = await starChannel.messages.fetch(starMessage.id);
 		// eslint-disable-next-line no-empty-function
-		await starMsg.edit({ embeds: [starEmbed] }).catch(() => {});
+		await starMsg.edit({ embeds: [starEmbed], files: [] }).catch(() => {});
 		if(parseInt(stars[2]) - 1 == 0 || reaction && reaction.count < data.options.threshold) {
 			setTimeout(() => {
 				// eslint-disable-next-line no-empty-function
