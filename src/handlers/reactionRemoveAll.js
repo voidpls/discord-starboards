@@ -22,10 +22,17 @@ module.exports = async (manager, message) => {
 				.setDescription(foundStar.description || '')
 				.setAuthor({ name: message.author.tag, iconURL: message.author.displayAvatarURL() })
 				.setTimestamp()
-				.setFooter({ text: `${data.options.emoji} 0 | ${message.id}` })
-				.setImage(image);
+				.setFooter({ text: `${data.options.emoji} 0 | ${message.id}` });
+
+			if (message.attachments.size > 0) {
+				const ext = [...message.attachments.values()][0].url
+					.split(/[#?]/)[0].split('.').pop().trim();
+				starEmbed.setImage(`image.${ext}`);
+			}
+			else starEmbed.setImage(image);
+
 			const starMsg = await starChannel.messages.fetch(starMessage.id);
-			await starMsg.edit({ embeds: [starEmbed], files: [] });
+			await starMsg.edit({ embeds: [starEmbed] });
 
 			setTimeout(() => {
 				starMsg.delete();

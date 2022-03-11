@@ -47,11 +47,19 @@ module.exports = async (manager, emoji, message, user) => {
 			.setDescription(foundStar.description || '')
 			.setAuthor({ name: message.author.tag, iconURL: message.author.displayAvatarURL() })
 			.setTimestamp()
-			.setFooter({ text: `${emoji.length > 5 ? '' : data.options.emoji} ${count} | ${message.id}`, iconURL: footerUrl })
-			.setImage(image);
+			.setFooter({ text: `${emoji.length > 5 ? '' : data.options.emoji} ${count} | ${message.id}`, iconURL: footerUrl });
+
+		if (message.attachments.size > 0) {
+			const ext = [...message.attachments.values()][0].url
+				.split(/[#?]/)[0].split('.').pop().trim();
+			starEmbed.setImage(`image.${ext}`);
+		}
+		else starEmbed.setImage(image);
+
 		const starMsg = await starChannel.messages.fetch(starMessage.id);
+
 		// eslint-disable-next-line no-empty-function
-		await starMsg.edit({ embeds: [starEmbed], files: [] }).catch(() => {});
+		await starMsg.edit({ embeds: [starEmbed] }).catch(() => {});
 		manager.emit('starboardReactionAdd', emoji, message, user);
 	}
 
