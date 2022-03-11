@@ -34,8 +34,9 @@ module.exports = async (manager, message) => {
 			const starMsg = await starChannel.messages.fetch(starMessage.id);
 			if (starMessage.attachments.size > 0) {
 				// const filename = starMessage.attachments.first().name;
+				starEmbed.setImage(`attachment://${starMessage.attachments.first().name}`);
 				// eslint-disable-next-line no-empty-function
-				await starMsg.edit({ embeds: [starEmbed], files: [...starMessage.attachments.values()] }).catch(() => {});
+				await starMsg.edit({ embeds: [starEmbed], files: [starMessage.attachments.first()] }).catch(() => {});
 			}
 			// eslint-disable-next-line no-empty-function
 			else await starMsg.edit({ embeds: [starEmbed] }).catch(() => {});
