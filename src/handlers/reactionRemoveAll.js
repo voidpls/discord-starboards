@@ -1,4 +1,5 @@
-const { MessageEmbed } = require('discord.js');
+const { MessageAttachment } = require('discord.js');
+const axios = require('axios');
 
 module.exports = async (manager, message) => {
 
@@ -16,32 +17,29 @@ module.exports = async (manager, message) => {
 		const starMessage = fetchedMessages.find(m => m.embeds[0] && m.embeds[0].footer && m.embeds[0].footer.text.endsWith(message.id) && m.author.id === manager.client.user.id);
 		if (starMessage) {
 			const foundStar = starMessage.embeds[0];
-			// const image = foundStar.image && foundStar.image.url || '';
-			const starEmbed = new MessageEmbed()
+			const image = foundStar.image && foundStar.image.url || '';
+			// const starEmbed = new MessageEmbed()
+			const starEmbed = starMessage.embeds[0]
 				.setColor(foundStar.color)
 				.setDescription(foundStar.description || '')
 				.setAuthor({ name: message.author.tag, iconURL: message.author.displayAvatarURL() })
-				.setTimestamp()
+				// .setTimestamp()
 				.setFooter({ text: `${data.options.emoji} 0 | ${message.id}` });
 
-			// if (message.attachments.size > 0) {
-			// 	const ext = [...message.attachments.values()][0].url
-			// 		.split(/[#?]/)[0].split('.').pop().trim();
-			// 	starEmbed.setImage(`image.${ext}`);
-			// }
-			// else starEmbed.setImage(image);
-
 			const starMsg = await starChannel.messages.fetch(starMessage.id);
-			if (starMessage.attachments.size > 0) {
-				// const filename = starMessage.attachments.first().name;
-				starEmbed.setImage(`attachment://${starMessage.attachments.first().name}`);
+			if (image) {
+				const res = await axios.get(image, {
+					responseType: 'arraybuffer',
+				});
+				const ext = image.split(/[#?]/)[0].split('.').pop().trim();
+				const attach = new MessageAttachment(res.data, `image.${ext}`);
+				starEmbed
+					.setImage(`attachment://image.${ext}`);
 				// eslint-disable-next-line no-empty-function
-				await starMsg.edit({ embeds: [starEmbed], files: [starMessage.attachments.first()] }).catch(() => {});
+				starMsg.edit({ embeds: [starEmbed], files: [attach] }).catch(() => {});
 			}
 			// eslint-disable-next-line no-empty-function
 			else await starMsg.edit({ embeds: [starEmbed] }).catch(() => {});
-
-			// await starMsg.edit({ embeds: [starEmbed] });
 
 			setTimeout(() => {
 				starMsg.delete();

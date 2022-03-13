@@ -1,4 +1,5 @@
-const { MessageEmbed } = require('discord.js');
+const { MessageAttachment } = require('discord.js');
+const axios = require('axios');
 
 module.exports = async (manager, emoji, message, user) => {
 
@@ -23,8 +24,9 @@ module.exports = async (manager, emoji, message, user) => {
 		const regex = new RegExp(`^(${data.options.emoji}|" ")?\\s?([0-9]{1,3})\\s\\|\\s([0-9]{17,20})`);
 		const stars = regex.exec(starMessage.embeds[0].footer.text);
 		const foundStar = starMessage.embeds[0];
-		// const image = foundStar.image && foundStar.image.url || '';
+		const image = foundStar.image && foundStar.image.url || '';
 		const footerUrl = emoji.length > 5 ? `https://cdn.discordapp.com/emojis/${emoji}` : null;
+
 		// const starEmbed = new MessageEmbed()
 		const starEmbed = starMessage.embeds[0]
 			.setColor(getColor(data.options.color, parseInt(stars[2]) - 1, data.options.threshold) || foundStar.color)
@@ -33,20 +35,19 @@ module.exports = async (manager, emoji, message, user) => {
 			// .setTimestamp()
 			.setFooter({ text: `${emoji.length > 5 ? '' : data.options.emoji} ${parseInt(stars[2]) - 1} | ${message.id}`, iconURL: footerUrl });
 
-		// if (message.attachments.size > 0) {
-		// 	const ext = [...message.attachments.values()][0].url
-		// 		.split(/[#?]/)[0].split('.').pop().trim();
-		// 	starEmbed.setImage(`image.${ext}`);
-		// }
-		// else starEmbed.setImage(image);
 
 		const starMsg = await starChannel.messages.fetch(starMessage.id);
-		// eslint-disable-next-line no-empty-function
-		if (starMessage.attachments.size > 0) {
-			// const filename = starMessage.attachments.first().name;
-			starEmbed.setImage(`attachment://${starMessage.attachments.first().name}`);
+
+		if (image) {
+			const res = await axios.get(image, {
+				responseType: 'arraybuffer',
+			});
+			const ext = image.split(/[#?]/)[0].split('.').pop().trim();
+			const attach = new MessageAttachment(res.data, `image.${ext}`);
+			starEmbed
+				.setImage(`attachment://image.${ext}`);
 			// eslint-disable-next-line no-empty-function
-			await starMsg.edit({ embeds: [starEmbed], files: [starMessage.attachments.first()] }).catch(() => {});
+			starMsg.edit({ embeds: [starEmbed], files: [attach] }).catch(() => {});
 		}
 		// eslint-disable-next-line no-empty-function
 		else await starMsg.edit({ embeds: [starEmbed] }).catch(() => {});
